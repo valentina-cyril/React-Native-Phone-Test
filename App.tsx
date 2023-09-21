@@ -1,6 +1,5 @@
 import React from "react";
-import {
-  Text,
+import {  Text,
   Link,
   HStack,
   Center,
@@ -11,8 +10,19 @@ import {
   extendTheme,
   VStack,
   Box,
+  Pressable,
+  Button,
+  View,
 } from "native-base";
 import NativeBaseIcon from "./components/NativeBaseIcon";
+import { Camera,CameraType } from "expo-camera";
+import { NavigationContainer } from "@react-navigation/native";
+import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from "./HomeScreen";
+import FrontCam from "./FrontCam";
+import BackCam from "./BackCam";
+import Sensor from "./Sensor";
+import NewSensor from "./NewSensor";
 
 // Define the config
 const config = {
@@ -26,62 +36,43 @@ type MyThemeType = typeof theme;
 declare module "native-base" {
   interface ICustomTheme extends MyThemeType {}
 }
+const Stack = createNativeStackNavigator();
 export default function App() {
+  const defaultOptions = { headerShown: false, animation: "slide_from_right", statusBarColor:"white"} as NativeStackNavigationOptions | ((props: { route: RouteProp<ParamListBase, string>; navigation: any; }) => NativeStackNavigationOptions)
+  const [checking, setChecking] = React.useState(false);
+  const [currentCheck, setCurrentCheck] = React.useState('front');
+  const [type, setType] = React.useState(CameraType.back);
+  const [permission, requestPermission] = Camera.useCameraPermissions();
+  const cameraRef = React.useRef(null);
+  // if (!permission) {
+  //   // Camera permissions are still loading
+  //   return <View />;
+  // }
+
+  // if (!permission.granted) {
+  //   // Camera permissions are not granted yet
+  //   return (
+  //     <View style={styles.container}>
+  //       <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
+  //       <Button onPress={requestPermission} title="grant permission" />
+  //     </View>
+  //   );
+  // }
+
   return (
     <NativeBaseProvider>
-      <Center
-        _dark={{ bg: "blueGray.900" }}
-        _light={{ bg: "blueGray.50" }}
-        px={4}
-        flex={1}
-      >
-        <VStack space={5} alignItems="center">
-          <NativeBaseIcon />
-          <Heading size="lg">Welcome to NativeBase</Heading>
-          <HStack space={2} alignItems="center">
-            <Text>Edit</Text>
-            <Box
-              _web={{
-                _text: {
-                  fontFamily: "monospace",
-                  fontSize: "sm",
-                },
-              }}
-              px={2}
-              py={1}
-              _dark={{ bg: "blueGray.800" }}
-              _light={{ bg: "blueGray.200" }}
-            >
-              App.js
-            </Box>
-            <Text>and save to reload.</Text>
-          </HStack>
-          <Link href="https://docs.nativebase.io" isExternal>
-            <Text color="primary.500" underline fontSize={"xl"}>
-              Learn NativeBase
-            </Text>
-          </Link>
-          <ToggleDarkMode />
-        </VStack>
-      </Center>
+      
+        <NavigationContainer>
+        <Stack.Navigator initialRouteName="Home">
+          {/* Define your screens here */}
+          <Stack.Screen options={defaultOptions} name="Home" component={HomeScreen} />
+          <Stack.Screen options={defaultOptions} name="Front" component={FrontCam} />
+          <Stack.Screen options={defaultOptions} name="Back" component={BackCam} />
+          <Stack.Screen options={defaultOptions} name="Sensor" component={NewSensor} />
+        </Stack.Navigator>
+      </NavigationContainer>
+      
     </NativeBaseProvider>
   );
 }
 
-// Color Switch Component
-function ToggleDarkMode() {
-  const { colorMode, toggleColorMode } = useColorMode();
-  return (
-    <HStack space={2} alignItems="center">
-      <Text>Dark</Text>
-      <Switch
-        isChecked={colorMode === "light"}
-        onToggle={toggleColorMode}
-        aria-label={
-          colorMode === "light" ? "switch to dark mode" : "switch to light mode"
-        }
-      />
-      <Text>Light</Text>
-    </HStack>
-  );
-}
